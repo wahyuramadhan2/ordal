@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>✨ DREAM_JOB_FINDER // MOBILE READY ✨</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-color: #fffbf0;
+            --c-black: #18181b;
+            --c-purple: #a78bfa;
+            --c-pink: #f472b6;
+            --c-green: #4ade80;
+            --c-yellow: #facc15;
+            --shadow-hard: 6px 6px 0px 0px var(--c-black);
+            --shadow-hover: 8px 8px 0px 0px var(--c-black);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Outfit', sans-serif;
+            color: var(--c-black);
+            overflow-x: hidden;
+        }
+
+        /* --- CUSTOM CURSOR (PC ONLY) --- */
+        @media (pointer: fine) {
+            body { cursor: none; } /* Hide default cursor only on mouse devices */
+            
+            #cursor {
+                position: fixed;
+                top: 0; left: 0;
+                width: 20px; height: 20px;
+                background: var(--c-black);
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+                transform: translate(-50%, -50%);
+                transition: width 0.2s, height 0.2s, background 0.2s;
+                mix-blend-mode: difference;
+                display: block;
+            }
+            #cursor.hovered {
+                width: 50px;
+                height: 50px;
+                background: white;
+                border: 2px solid black;
+                mix-blend-mode: normal;
+                opacity: 0.9;
+            }
+        }
+
+        /* Disable Custom Cursor on Touch Devices */
+        @media (pointer: coarse) {
+            #cursor { display: none; }
+            body { cursor: auto; }
+        }
+
+        /* --- NEO-BRUTALISM COMPONENTS --- */
+        .neo-card {
+            background: white;
+            border: 3px solid var(--c-black);
+            box-shadow: var(--shadow-hard);
+            border-radius: 16px;
+        }
+
+        .neo-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--c-black);
+            border-radius: 12px;
+            background: #f9fafb;
+            font-weight: 600;
+            outline: none;
+            font-size: 1rem; /* Prevents zoom on iOS */
+            transition: all 0.2s ease;
+        }
+        .neo-input:focus {
+            background: white;
+            box-shadow: 4px 4px 0px var(--c-black);
+            transform: translate(-2px, -2px);
+            border-color: var(--c-purple);
+        }
+
+        .neo-btn {
+            background: var(--c-black);
+            color: white;
+            border: 2px solid var(--c-black);
+            box-shadow: var(--shadow-hard);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .neo-btn:hover {
+            background: var(--c-purple);
+            color: black;
+            font-weight: 800;
+            box-shadow: var(--shadow-hover);
+            transform: translate(-2px, -2px);
+        }
+        .neo-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px var(--c-black);
+        }
+
+        /* --- MARQUEE --- */
+        .marquee-strip {
+            background: var(--c-yellow);
+            border-bottom: 3px solid var(--c-black);
+            padding: 8px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            position: fixed;
+            top: 0; width: 100%;
+            z-index: 40;
+        }
+        .marquee-text {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+            font-weight: 900;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+        @media (min-width: 768px) {
+            .marquee-text { font-size: 1.2rem; }
+            .marquee-strip { padding: 10px 0; }
+        }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* --- CLOCK PILL (RESPONSIVE POSITION) --- */
+        .clock-pill {
+            position: fixed;
+            z-index: 50;
+            background: white;
+            border: 3px solid var(--c-black);
+            border-radius: 50px;
+            font-weight: 900;
+            box-shadow: 4px 4px 0px var(--c-black);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Desktop Position */
+        @media (min-width: 768px) {
+            .clock-pill {
+                top: 80px; right: 20px;
+                padding: 8px 20px;
+            }
+        }
+
+        /* Mobile Position (Bottom Right - Biar gak nutupin header) */
+        @media (max-width: 767px) {
+            .clock-pill {
+                bottom: 20px; right: 20px;
+                padding: 6px 14px;
+                font-size: 0.8rem;
+                box-shadow: 2px 2px 0px var(--c-black);
+            }
+        }
+    </style>
+</head>
+<body class="pb-24 pt-16 md:pt-20">
+
+    <div id="cursor"></div>
+
+    <div class="marquee-strip">
+        <div class="marquee-text">
+            ✨ DREAM JOB LOADING... /// GAJI GEDE KERJA SANTAI /// NO TOXIC ENVIRONMENT /// GENERASI EMAS 2045 /// APPLY SEKARANG BESTIE /// ✨
+        </div>
+    </div>
+
+    <div class="clock-pill hover-trigger">
+        <div class="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full animate-pulse"></div>
+        <span id="digital-clock">00:00:00</span>
+    </div>
+
+    <main class="w-full max-w-3xl mx-auto px-4 md:px-6 relative z-10">
+        
+        <div class="text-center mb-8 md:mb-10 mt-4 md:mt-8">
+            <div class="inline-block bg-purple-200 border-2 border-black px-3 py-1 rounded-full text-xs md:text-sm font-bold mb-3 hover-trigger transform -rotate-2">
+                🚀 OPEN FOR EVERYONE
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black mb-2 hover-trigger leading-tight">
+                CAREER <span class="text-purple-500">HUB</span>
+            </h1>
+            <p class="text-gray-600 text-base md:text-lg font-medium px-4">
+                Portal lowongan paling estetik se-Indonesia Raya.
+            </p>
+        </div>
+
+        <div class="neo-card p-5 md:p-10 bg-white relative">
+            
+            <div class="absolute top-3 right-3 md:top-4 md:right-4 flex gap-1.5 md:gap-2">
+                <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-400 border border-black"></div>
+                <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-400 border border-black"></div>
+                <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-400 border border-black"></div>
+            </div>
+
+            <div class="mb-6 md:mb-8 mt-2">
+                <h3 class="text-xl md:text-2xl font-black mb-4 flex items-center gap-2">
+                    <span class="bg-pink-300 border-2 border-black rounded-lg p-1"><i data-lucide="user" class="w-4 h-4 md:w-5 md:h-5"></i></span>
+                    IDENTITY CHECK
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                    <div>
+                        <label class="block font-bold text-sm mb-2 ml-1">Nama Lengkap</label>
+                        <input type="text" id="nama" class="neo-input hover-trigger" placeholder="Nama kece kamu...">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-sm mb-2 ml-1">WhatsApp (Aktif)</label>
+                        <input type="tel" id="wa" class="neo-input hover-trigger" placeholder="08xxxx...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6 md:mb-8">
+                <h3 class="text-xl md:text-2xl font-black mb-4 flex items-center gap-2">
+                    <span class="bg-green-300 border-2 border-black rounded-lg p-1"><i data-lucide="briefcase" class="w-4 h-4 md:w-5 md:h-5"></i></span>
+                    CHOOSE YOUR GRIND
+                </h3>
+                
+                <div class="space-y-4 md:space-y-5">
+                    <div>
+                        <label class="block font-bold text-sm mb-2 ml-1">Role / Posisi</label>
+                        <div class="relative hover-trigger">
+                            <select id="bidang" class="neo-input appearance-none">
+                                <option value="" disabled selected>Pilih Role yang Lo banget...</option>
+                                
+                                <optgroup label="💻 TECH & AI (Anak IT)">
+                                    <option value="Frontend">Frontend Dev (React/Vue)</option>
+                                    <option value="Backend">Backend Dev (Golang/Node)</option>
+                                    <option value="Fullstack">Fullstack Developer</option>
+                                    <option value="Mobile">Mobile App Dev</option>
+                                    <option value="UIUX">UI/UX Designer</option>
+                                    <option value="DevOps">DevOps & Cloud</option>
+                                    <option value="DataScientist">Data Scientist</option>
+                                    <option value="AI_Prompt">AI Prompt Engineer</option>
+                                    <option value="CyberSec">Cyber Security</option>
+                                </optgroup>
+
+                                <optgroup label="🎨 CREATIVE & MEDIA (Seni)">
+                                    <option value="GraphicDes">Graphic Designer</option>
+                                    <option value="VideoEditor">Video Editor</option>
+                                    <option value="Animator">Animator / Motion Graphic</option>
+                                    <option value="ContentCreator">Content Creator (TikTok/IG)</option>
+                                    <option value="Copywriter">Copywriter / Scriptwriter</option>
+                                    <option value="SoundEng">Sound Engineer</option>
+                                    <option value="Photographer">Photographer</option>
+                                </optgroup>
+
+                                <optgroup label="🎮 DIGITAL & NEW ERA (Gen Z)">
+                                    <option value="Streamer">Live Streamer / VTuber</option>
+                                    <option value="Esports">Esports Player / Coach</option>
+                                    <option value="Crypto">Crypto / NFT Trader</option>
+                                    <option value="Affiliate">Affiliate Marketer</option>
+                                    <option value="SocMedSpec">Social Media Specialist</option>
+                                    <option value="KOL">KOL / Influencer Manager</option>
+                                </optgroup>
+
+                                <optgroup label="🏢 CORPORATE (Kantoran)">
+                                    <option value="HR">HRD / Recruitment</option>
+                                    <option value="Finance">Finance / Accounting</option>
+                                    <option value="Admin">Admin / Sekretaris</option>
+                                    <option value="Sales">Sales / Account Executive</option>
+                                    <option value="Legal">Legal Staff</option>
+                                    <option value="BusDev">Business Development</option>
+                                </optgroup>
+
+                                <optgroup label="🏥 HEALTH (Kesehatan)">
+                                    <option value="Dokter">Dokter</option>
+                                    <option value="Perawat">Perawat</option>
+                                    <option value="Psikolog">Psikolog</option>
+                                    <option value="Apoteker">Apoteker</option>
+                                     <option value="Dapur MBG">Dapur MBG</option>
+                                </optgroup>
+
+                                <optgroup label="🏗️ INDUSTRY (Lapangan)">
+                                    <option value="Sipil">Teknik Sipil / Arsitek</option>
+                                    <option value="Mesin">Teknik Mesin</option>
+                                    <option value="Elektro">Teknik Elektro</option>
+                                    <option value="Mining">Pertambangan (Mining)</option>
+                                    <option value="K3">HSE / Safety Officer</option>
+                                </optgroup>
+
+                                <optgroup label="☕ SERVICE (Jasa)">
+                                    <option value="Barista">Barista</option>
+                                    <option value="Chef">Chef / Cook</option>
+                                    <option value="Hotel">Staff Hotel</option>
+                                    <option value="CS">Customer Service</option>
+                                    <option value="Driver">Driver</option>
+                                    <option value="Guru">Guru / Tutor</option>
+                                </optgroup>
+                            </select>
+                            <div class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                        <div>
+                            <label class="block font-bold text-sm mb-2 ml-1">Domisili (38 Provinsi)</label>
+                            <div class="relative hover-trigger">
+                                <select id="provinsi" class="neo-input appearance-none">
+                                    <option value="" disabled selected>Pilih Provinsi...</option>
+                                    <option value="Remote">🏠 REMOTE (Work From Home)</option>
+                                    
+                                    <optgroup label="Sumatera">
+                                        <option value="Aceh">Aceh</option>
+                                        <option value="Sumut">Sumatera Utara</option>
+                                        <option value="Sumbar">Sumatera Barat</option>
+                                        <option value="Riau">Riau</option>
+                                        <option value="Kepri">Kepulauan Riau</option>
+                                        <option value="Jambi">Jambi</option>
+                                        <option value="Sumsel">Sumatera Selatan</option>
+                                        <option value="Babel">Bangka Belitung</option>
+                                        <option value="Bengkulu">Bengkulu</option>
+                                        <option value="Lampung">Lampung</option>
+                                    </optgroup>
+
+                                    <optgroup label="Jawa">
+                                        <option value="Banten">Banten</option>
+                                        <option value="DKI">DKI Jakarta</option>
+                                        <option value="Jabar">Jawa Barat</option>
+                                        <option value="Jateng">Jawa Tengah</option>
+                                        <option value="DIY">DI Yogyakarta</option>
+                                        <option value="Jatim">Jawa Timur</option>
+                                    </optgroup>
+
+                                    <optgroup label="Bali & Nusa">
+                                        <option value="Bali">Bali</option>
+                                        <option value="NTB">NTB</option>
+                                        <option value="NTT">NTT</option>
+                                    </optgroup>
+
+                                    <optgroup label="Kalimantan">
+                                        <option value="Kalbar">Kalimantan Barat</option>
+                                        <option value="Kalteng">Kalimantan Tengah</option>
+                                        <option value="Kalsel">Kalimantan Selatan</option>
+                                        <option value="Kaltim">Kalimantan Timur</option>
+                                        <option value="Kaltara">Kalimantan Utara</option>
+                                    </optgroup>
+
+                                    <optgroup label="Sulawesi">
+                                        <option value="Sulut">Sulawesi Utara</option>
+                                        <option value="Gorontalo">Gorontalo</option>
+                                        <option value="Sulteng">Sulawesi Tengah</option>
+                                        <option value="Sulbar">Sulawesi Barat</option>
+                                        <option value="Sulsel">Sulawesi Selatan</option>
+                                        <option value="Sultra">Sulawesi Tenggara</option>
+                                    </optgroup>
+
+                                    <optgroup label="Maluku & Papua">
+                                        <option value="Maluku">Maluku</option>
+                                        <option value="Malut">Maluku Utara</option>
+                                        <option value="Papua">Papua</option>
+                                        <option value="PapuaBarat">Papua Barat</option>
+                                        <option value="PapuaSelatan">Papua Selatan</option>
+                                        <option value="PapuaTengah">Papua Tengah</option>
+                                        <option value="PapuaPegunungan">Papua Pegunungan</option>
+                                        <option value="PapuaBD">Papua Barat Daya</option>
+                                    </optgroup>
+                                </select>
+                                <div class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-sm mb-2 ml-1">Request Gaji (Juta)</label>
+                            <div class="relative hover-trigger">
+                                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 font-bold text-gray-500">Rp</span>
+                                <input type="number" id="gaji" class="neo-input pl-10" placeholder="15">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-xl md:text-2xl font-black mb-4 flex items-center gap-2">
+                    <span class="bg-yellow-300 border-2 border-black rounded-lg p-1"><i data-lucide="upload-cloud" class="w-4 h-4 md:w-5 md:h-5"></i></span>
+                    DROP THE LOOT (CV)
+                </h3>
+                <label class="group block w-full h-28 md:h-32 border-2 border-dashed border-gray-400 bg-gray-50 rounded-xl cursor-pointer hover:border-black hover:bg-blue-50 transition-all flex flex-col items-center justify-center hover-trigger">
+                    <input type="file" id="file" class="hidden" accept=".pdf">
+                    
+                    <div id="upload-content" class="text-center group-hover:scale-110 transition-transform">
+                        <i data-lucide="file-up" class="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-gray-400 group-hover:text-black"></i>
+                        <span class="font-bold text-gray-500 group-hover:text-black text-sm md:text-base">KLIK BUAT UPLOAD PDF</span>
+                        <p class="text-xs text-gray-400 mt-1">Max 5MB ya bestie</p>
+                    </div>
+
+                    <div id="file-success" class="hidden flex-col items-center">
+                        <span class="bg-green-400 border border-black px-3 py-1 rounded-full text-xs font-bold mb-2">FILE READY!</span>
+                        <span id="filename" class="font-bold text-sm md:text-lg">CV.PDF</span>
+                    </div>
+                </label>
+            </div>
+
+            <button onclick="submitSkeena()" class="neo-btn w-full py-3 md:py-4 text-lg md:text-xl font-bold flex items-center justify-center gap-2 hover-trigger">
+                <i data-lucide="send"></i>
+                KIRIM LAMARAN
+            </button>
+
+        </div>
+
+        <footer class="mt-8 text-center text-gray-400 font-medium text-xs md:text-sm">
+            &copy; 2025 CAREER HUB // No Drama Club
+        </footer>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- 1. RESPONSIVE CUSTOM CURSOR ---
+        const cursor = document.getElementById('cursor');
+        
+        // Cek apakah device punya mouse (Fine Pointer)
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            const triggers = document.querySelectorAll('.hover-trigger, input, select, button, label');
+            triggers.forEach(trigger => {
+                trigger.addEventListener('mouseenter', () => {
+                    cursor.classList.add('hovered');
+                });
+                trigger.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hovered');
+                });
+            });
+        }
+
+        // --- 2. CLOCK LOGIC ---
+        function updateClock() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('id-ID', { hour12: false });
+            document.getElementById('digital-clock').innerText = time;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- 3. FILE UPLOAD LOGIC ---
+        const fileInput = document.getElementById('file');
+        const uploadContent = document.getElementById('upload-content');
+        const fileSuccess = document.getElementById('file-success');
+        const filenameDisplay = document.getElementById('filename');
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                uploadContent.classList.add('hidden');
+                fileSuccess.classList.remove('hidden');
+                fileSuccess.classList.add('flex');
+                filenameDisplay.innerText = this.files[0].name;
+            }
+        });
+
+        // --- 4. SUBMIT LOGIC ---
+        function submitSkeena() {
+            const nama = document.getElementById('nama').value;
+            const bidang = document.getElementById('bidang').value;
+            const provinsi = document.getElementById('provinsi').value;
+            const gaji = document.getElementById('gaji').value;
+
+            if (!nama || !bidang || !provinsi || !gaji || fileInput.files.length === 0) {
+                alert("⚠️ Eits! Data belum lengkap bestie. Isi dulu yuk!");
+                return;
+            }
+
+            alert(`
+            ✨ LAMARAN TERKIRIM ✨
+            ---------------------
+            👤 Talent: ${nama}
+            💼 Role: ${bidang}
+            📍 Lokasi: ${provinsi}
+            💰 Gaji: ${gaji} Juta
+            
+            Good luck! Tunggu HRD kita sliding ke DM/WA kamu ya! 🚀
+            `);
+        }
+    </script>
+</body>
+</html>
