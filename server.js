@@ -11,9 +11,16 @@ app.use(cors());
 // Setup tempat simpan file sementara
 const upload = multer({ dest: 'uploads/' });
 
+// --- ROUTE UTAMA ---
+// Ini biar kalau kamu buka link Render di browser, gak muncul "Cannot GET" lagi
+app.get('/', (req, res) => {
+    res.send('✅ Server Kurir CV sudah Aktif dan Siap Menerima Lamaran!');
+});
+
+// --- ROUTE TERIMA LAMARAN ---
 app.post('/analyze', upload.single('cv'), async (req, res) => {
     try {
-        const { nama, email, bidang } = req.body; // 'email' disini adalah email pelamar
+        const { nama, email, bidang } = req.body; 
 
         // 1. Cek File
         if (!req.file) {
@@ -23,10 +30,9 @@ app.post('/analyze', upload.single('cv'), async (req, res) => {
         console.log(`📂 Menerima lamaran dari: ${nama} (${bidang})`);
 
         // 2. KIRIM EMAIL KE KAMU (ADMIN)
-        // Isinya: Data pelamar + File CV dia dilampirkan
         await sendEmailToAdmin(nama, email, bidang, req.file);
 
-        // 3. Hapus file dari folder uploads supaya gak menuhin laptop
+        // 3. Hapus file dari folder uploads supaya gak menuhin server
         fs.unlinkSync(req.file.path);
         
         console.log("✅ CV berhasil dikirim ke email kamu!");
@@ -38,12 +44,21 @@ app.post('/analyze', upload.single('cv'), async (req, res) => {
     }
 });
 
+// --- FUNGSI KIRIM EMAIL (VERSI ANTI TIMEOUT) ---
 async function sendEmailToAdmin(namaPelamar, emailPelamar, posisi, fileCV) {
+    
+    // Setting Transporter Khusus Render (Pakai Port 465)
     let transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: "smtp.gmail.com", 
+        port: 465,              // Pakai Jalur VIP (SSL) biar gak timeout
+        secure: true,           // Wajib True buat port 465
         auth: { 
-            user: process.env.EMAIL_USER, // Email pengirim (Email Kamu)
-            pass: process.env.EMAIL_PASS  // App Password Kamu
+            user: process.env.EMAIL_USER, 
+            pass: process.env.EMAIL_PASS
+        },
+        tls: {
+            // Biar server gak rewel soal sertifikat keamanan
+            rejectUnauthorized: false
         }
     });
 
@@ -70,4 +85,6 @@ async function sendEmailToAdmin(namaPelamar, emailPelamar, posisi, fileCV) {
     });
 }
 
-app.listen(3001, () => console.log('🚀 Server Kurir CV siap di port 3001!'));
+// Gunakan Port dari Render atau 3001 kalau di laptop
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`🚀 Server Kurir CV siap di port ${PORT}!`));
