@@ -8,83 +8,64 @@ const fs = require('fs');
 const app = express();
 app.use(cors());
 
-// Setup tempat simpan file sementara
 const upload = multer({ dest: 'uploads/' });
 
-// --- ROUTE UTAMA ---
-// Ini biar kalau kamu buka link Render di browser, gak muncul "Cannot GET" lagi
 app.get('/', (req, res) => {
-    res.send('✅ Server Kurir CV sudah Aktif dan Siap Menerima Lamaran!');
+    res.send('✅ Server Kurir CV (Jalur 587) Siap!');
 });
 
-// --- ROUTE TERIMA LAMARAN ---
 app.post('/analyze', upload.single('cv'), async (req, res) => {
     try {
-        const { nama, email, bidang } = req.body; 
-
-        // 1. Cek File
+        const { nama, email, bidang } = req.body;
+        
         if (!req.file) {
             return res.status(400).json({ success: false, message: "Mana filenya bos?" });
         }
 
-        console.log(`📂 Menerima lamaran dari: ${nama} (${bidang})`);
+        console.log(`📂 Data diterima dari ${nama}. Mencoba kirim via Port 587...`);
 
-        // 2. KIRIM EMAIL KE KAMU (ADMIN)
-        await sendEmailToAdmin(nama, email, bidang, req.file);
+        // --- SETTING EMAIL JALUR 587 (STARTTLS) ---
+        let transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 587,              // GANTI KE 587 (Biasanya lebih tembus firewall)
+            secure: false,          // WAJIB FALSE kalau pakai 587
+            requireTLS: true,       // Paksa enkripsi biar aman
+            auth: { 
+                user: process.env.EMAIL_USER, 
+                pass: process.env.EMAIL_PASS
+            },
+            // Tambahan biar koneksi gak gampang putus
+            tls: {
+                ciphers: "SSLv3"
+            }
+        });
 
-        // 3. Hapus file dari folder uploads supaya gak menuhin server
+        await transporter.sendMail({
+            from: `"Career Hub System" <${process.env.EMAIL_USER}>`, 
+            to: process.env.EMAIL_USER, 
+            replyTo: emailPelamar = email, // Biar bisa direply
+            subject: `🔥 Lamaran Baru: ${nama} - ${bidang}`,
+            html: `
+                <h3>Ada Pelamar Baru nih! 🚀</h3>
+                <ul>
+                    <li><strong>Nama:</strong> ${nama}</li>
+                    <li><strong>Posisi:</strong> ${bidang}</li>
+                    <li><strong>Email Pelamar:</strong> ${email}</li>
+                </ul>
+                <p>File CV terlampir di email ini.</p>
+            `,
+            attachments: [{ filename: `${nama}_CV.pdf`, path: req.file.path }]
+        });
+
         fs.unlinkSync(req.file.path);
-        
-        console.log("✅ CV berhasil dikirim ke email kamu!");
-        res.json({ success: true, message: "Lamaran berhasil dikirim!" });
+        console.log("✅ Email SUKSES Terkirim!");
+        res.json({ success: true, message: "Berhasil terkirim!" });
 
     } catch (error) {
-        console.error("❌ ERROR:", error);
-        res.status(500).json({ success: false, message: "Gagal kirim: " + error.message });
+        console.error("❌ GAGAL KIRIM:", error);
+        res.status(500).json({ success: false, message: "Gagal: " + error.message });
     }
 });
 
-// --- FUNGSI KIRIM EMAIL (VERSI ANTI TIMEOUT) ---
-async function sendEmailToAdmin(namaPelamar, emailPelamar, posisi, fileCV) {
-    
-    // Setting Transporter Khusus Render (Pakai Port 465)
-    let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com", 
-        port: 465,              // Pakai Jalur VIP (SSL) biar gak timeout
-        secure: true,           // Wajib True buat port 465
-        auth: { 
-            user: process.env.EMAIL_USER, 
-            pass: process.env.EMAIL_PASS
-        },
-        tls: {
-            // Biar server gak rewel soal sertifikat keamanan
-            rejectUnauthorized: false
-        }
-    });
-
-    await transporter.sendMail({
-        from: `"Career Hub System" <${process.env.EMAIL_USER}>`, 
-        to: process.env.EMAIL_USER, // KIRIM KE DIRI SENDIRI (ADMIN)
-        replyTo: emailPelamar, // Biar kalau kamu klik Reply, langsung ke pelamar
-        subject: `🔥 Lamaran Baru: ${namaPelamar} - ${posisi}`,
-        html: `
-            <h3>Ada Pelamar Baru nih! 🚀</h3>
-            <ul>
-                <li><strong>Nama:</strong> ${namaPelamar}</li>
-                <li><strong>Posisi:</strong> ${posisi}</li>
-                <li><strong>Email Pelamar:</strong> ${emailPelamar}</li>
-            </ul>
-            <p>File CV terlampir di email ini. Silakan di-review manual.</p>
-        `,
-        attachments: [
-            {
-                filename: `${namaPelamar}_CV.pdf`, // Nama file pas masuk email
-                path: fileCV.path // Ambil file yang barusan diupload
-            }
-        ]
-    });
-}
-
-// Gunakan Port dari Render atau 3001 kalau di laptop
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`🚀 Server Kurir CV siap di port ${PORT}!`));
+app.listen(PORT, () => console.log(`🚀 Server Jalur 587 siap di port ${PORT}!`));
