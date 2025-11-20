@@ -11,7 +11,7 @@ app.use(cors());
 const upload = multer({ dest: 'uploads/' });
 
 app.get('/', (req, res) => {
-    res.send('✅ Server Kurir CV (Jalur 587) Siap!');
+    res.send('✅ Server Kurir CV (IPv4 Force) Siap!');
 });
 
 app.post('/analyze', upload.single('cv'), async (req, res) => {
@@ -22,37 +22,28 @@ app.post('/analyze', upload.single('cv'), async (req, res) => {
             return res.status(400).json({ success: false, message: "Mana filenya bos?" });
         }
 
-        console.log(`📂 Data diterima dari ${nama}. Mencoba kirim via Port 587...`);
+        console.log(`📂 Data diterima: ${nama}. Mencoba kirim via IPv4...`);
 
-        // --- SETTING EMAIL JALUR 587 (STARTTLS) ---
+        // --- SETTING EMAIL VERSI PAKSA IPv4 ---
         let transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 587,              // GANTI KE 587 (Biasanya lebih tembus firewall)
-            secure: false,          // WAJIB FALSE kalau pakai 587
-            requireTLS: true,       // Paksa enkripsi biar aman
+            service: 'gmail', 
             auth: { 
                 user: process.env.EMAIL_USER, 
                 pass: process.env.EMAIL_PASS
             },
-            // Tambahan biar koneksi gak gampang putus
-            tls: {
-                ciphers: "SSLv3"
-            }
+            // 👇 INI KUNCINYA BANG 👇
+            family: 4, // Memaksa pakai IPv4 biar gak nyasar ke IPv6 yang sering diblokir
         });
 
         await transporter.sendMail({
             from: `"Career Hub System" <${process.env.EMAIL_USER}>`, 
             to: process.env.EMAIL_USER, 
-            replyTo: emailPelamar = email, // Biar bisa direply
+            replyTo: email,
             subject: `🔥 Lamaran Baru: ${nama} - ${bidang}`,
             html: `
-                <h3>Ada Pelamar Baru nih! 🚀</h3>
-                <ul>
-                    <li><strong>Nama:</strong> ${nama}</li>
-                    <li><strong>Posisi:</strong> ${bidang}</li>
-                    <li><strong>Email Pelamar:</strong> ${email}</li>
-                </ul>
-                <p>File CV terlampir di email ini.</p>
+                <h3>Pelamar Baru! 🚀</h3>
+                <p>Nama: ${nama} <br> Posisi: ${bidang} <br> Email: ${email}</p>
+                <p>CV terlampir.</p>
             `,
             attachments: [{ filename: `${nama}_CV.pdf`, path: req.file.path }]
         });
@@ -68,4 +59,4 @@ app.post('/analyze', upload.single('cv'), async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`🚀 Server Jalur 587 siap di port ${PORT}!`));
+app.listen(PORT, () => console.log(`🚀 Server siap di port ${PORT}!`));
