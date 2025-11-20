@@ -215,6 +215,10 @@
                         <label class="block font-bold text-sm mb-2 ml-1">WhatsApp (Aktif)</label>
                         <input type="tel" id="wa" class="neo-input hover-trigger" placeholder="08xxxx...">
                     </div>
+                    <div>
+                        <label class="block font-bold text-sm mb-2 ml-1">Email (Wajib Aktif)</label>
+                        <input type="email" id="email" class="neo-input hover-trigger" placeholder="email@kamu.com">
+                    </div>
                 </div>
             </div>
 
@@ -466,28 +470,52 @@
         });
 
         // --- 4. SUBMIT LOGIC ---
-        function submitSkeena() {
-            const nama = document.getElementById('nama').value;
-            const bidang = document.getElementById('bidang').value;
-            const provinsi = document.getElementById('provinsi').value;
-            const gaji = document.getElementById('gaji').value;
+      async function submitSkeena() {
+    const nama = document.getElementById('nama').value;
+    const email = document.getElementById('email').value;
+    const bidang = document.getElementById('bidang').value;
+    const fileInput = document.getElementById('file');
+    const btn = document.querySelector('button');
 
-            if (!nama || !bidang || !provinsi || !gaji || fileInput.files.length === 0) {
-                alert("⚠️ Eits! Data belum lengkap bestie. Isi dulu yuk!");
-                return;
-            }
+    if (!nama || !email || !bidang || fileInput.files.length === 0) {
+        alert("⚠️ Isi semua data dulu + Upload CV ya!");
+        return;
+    }
 
-            alert(`
-            ✨ LAMARAN TERKIRIM ✨
-            ---------------------
-            👤 Talent: ${nama}
-            💼 Role: ${bidang}
-            📍 Lokasi: ${provinsi}
-            💰 Gaji: ${gaji} Juta
-            
-            Good luck! Tunggu HRD kita sliding ke DM/WA kamu ya! 🚀
-            `);
+    // Ubah tombol biar kelihatan loading
+    const textAsli = btn.innerHTML;
+    btn.innerHTML = "⏳ LAGI BACA CV KAMU...";
+    btn.disabled = true;
+    btn.style.backgroundColor = "#ccc";
+
+    const formData = new FormData();
+    formData.append('nama', nama);
+    formData.append('email', email);
+    formData.append('bidang', bidang);
+    formData.append('cv', fileInput.files[0]);
+
+    try {
+        // Tembak ke server lokal kita
+        const response = await fetch('https://cv-sender-api.onrender.com/analyze', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const hasil = await response.json();
+
+        if (hasil.success) {
+            alert(`✅ SUKSES! Hasil analisis sudah dikirim ke email: ${email}. Cek Inbox/Spam sekarang!`);
+        } else {
+            alert("❌ Gagal: " + hasil.message);
         }
+    } catch (err) {
+        alert("❌ Server belum nyala bos! Cek terminal VS Code.");
+    } finally {
+        btn.innerHTML = textAsli;
+        btn.disabled = false;
+        btn.style.backgroundColor = "";
+    }
+}
     </script>
 </body>
 </html>
